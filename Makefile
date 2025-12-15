@@ -57,14 +57,15 @@ REGRESS = preseed infofuncs init_fail init progress preseed_check basic conflict
 		  interfaces foreign_key copy sequence triggers parallel functions row_filter \
 		  row_filter_sampling att_list column_filter apply_delay \
 		  extended node_origin_cascade multiple_upstreams tuple_origin autoddl \
-		  sync_table drop
+		  sync_table drop replication_delay_injection
 
 # The following test cases are disabled while developing.
 #
 # Ideally, we should run all test cases listed in $(REGRESS),
 # but occassionaly it is helpful to disable one or more
 # cases while developing.
-REGRESS := $(filter-out add_table, $(REGRESS))
+# Note: replication_delay_injection requires --enable-cassert (assertions enabled)
+REGRESS := $(filter-out add_table replication_delay_injection, $(REGRESS))
 
 # For regression checks
 # this makes "make check" give a useful error

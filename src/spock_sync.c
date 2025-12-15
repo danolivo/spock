@@ -57,6 +57,7 @@
 #include "utils/builtins.h"
 #include "utils/fmgroids.h"
 #include "utils/guc.h"
+#include "utils/injection_point.h"
 #include "utils/pg_lsn.h"
 #include "utils/rel.h"
 #include "utils/resowner.h"
@@ -1164,6 +1165,9 @@ spock_sync_subscription(SpockSubscription *sub)
 												 sub->name, "snap");
 
 		progress_entries_list = adjust_progress_info(origin_conn);
+
+		INJECTION_POINT("spock-before-replication-slot-snapshot");
+
 		snapshot = ensure_replication_slot_snapshot(origin_conn,
 													origin_conn_repl,
 													sub->slot_name,

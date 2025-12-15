@@ -1,0 +1,35 @@
+-- Test for replication wait injection point using PostgreSQL's injection_points
+-- This test is only meaningful when compiled with --enable-cassert
+
+SELECT * FROM spock_regress_variables()
+\gset
+
+\c :provider_dsn
+
+-- The injection point "spock-before-replication-slot-snapshot" is available in the code
+-- at src/spock_sync.c:1169, between adjust_progress_info() and
+-- ensure_replication_slot_snapshot() calls during subscription initialization.
+
+-- To use this injection point in testing:
+-- 1. Load the injection_points extension (only available with --enable-cassert):
+--    CREATE EXTENSION IF NOT EXISTS injection_points;
+--
+-- 2. Attach a wait callback to the injection point:
+--    SELECT injection_points_attach('spock-before-replication-slot-snapshot', 'wait');
+--
+-- 3. Create a subscription (it will pause at the injection point)
+--    SELECT spock.create_subscription(...);
+--
+-- 4. In another session, check the state or perform operations while paused
+--
+-- 5. Wake up the waiting process:
+--    SELECT injection_points_wakeup('spock-before-replication-slot-snapshot');
+--
+-- 6. Detach the injection point when done:
+--    SELECT injection_points_detach('spock-before-replication-slot-snapshot');
+
+-- For this regression test, we just verify that the extension can be loaded
+-- (it will fail gracefully if not compiled with assertions)
+\set ON_ERROR_STOP 0
+CREATE EXTENSION IF NOT EXISTS injection_points;
+\set ON_ERROR_STOP 1
